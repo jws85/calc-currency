@@ -2,18 +2,19 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-18 21:33:45 jws>
+;; Time-stamp: <2017-05-18 22:25:37 jws>
 
 ;;; Notes:
 
-(require 'xml)
+(require 'xml)  ;; to read XML files
+(require 'cl)   ;; for the loop macro
 
 ;; The XML file containing the exchange rates
 ;; This one is provided by the European Union.
 (defvar *exchange-rates-url* "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
 
 ;; Where to copy the exchange rates to
-(defvar *exchange-rates-file* "/tmp/emacs-exchange.xml")
+(defvar *exchange-rates-file* "/tmp/exchange.el")
 
 ;; How often to check for exchange rates
 (defvar *exchange-rates-update-interval* 5)
@@ -68,13 +69,10 @@
      (* 60 60 24)))
 
 (defun download-exchange-rates ()
-  "Download the latest exchange rates"
-  (url-copy-file *exchange-rates-url* *exchange-rates-file* t))
-
-(defun check-exchange-rates ()
-  "Check to see how old the exchange rates on disk are; if they are too old, download new data."
-  (if (> (file-age *exchange-rates-file*) *exchange-rates-update-interval*)
-      (download-exchange-rates)))
+  "Download the latest exchange rates, return the file they were downloaded to"
+  (let ((file (concat "/tmp/exchange." (format-time-string "%Y%m%d") ".xml")))
+    (url-copy-file *exchange-rates-url* file t)
+    file))
 
 (defun assqv (key alist)
   "Finds `key` in `alist` and returns its `cdr`"
@@ -87,7 +85,7 @@
     (cons code rate)))
 
 (defun process-currency-rates ()
-  (let* ((xml (xml-parse-file *exchange-rates-file*))
+  (let* ((xml (xml-parse-file (download-exchange-rates)))
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
          (date (assq 'time (xml-node-attributes (car pappy-cube))))
@@ -105,17 +103,48 @@
           (loop for rate in rate-table
                 collect (list
                          (car rate)
-                         (format "%f * %S" (/ (cdr rate) base-rate) *base-currency*)
+                         (format "%S / %f" *base-currency* (/ (cdr rate) base-rate))
                          (assqv (car rate) *currency-names*))))))
 
 ;; necessary for write-currency-unit-table to work properly
-(setq eval-expression-print-length nil)
+(setq-local eval-expression-print-length nil)
 (defun write-currency-unit-table ()
   (write-region
    (pp (build-currency-unit-table))
    nil
-   "/tmp/currency.el"))
+   *exchange-rates-file*))
 
+(defun check-currency-unit-table ()
+  (if (or (not (file-readable-p *exchange-rates-file*))
+          (> (file-age *exchange-rates-file*) *exchange-rates-update-interval*))
+      (write-currency-unit-table)))
+
+(defun read-currency-unit-table ()
+  (with-temp-buffer
+    (insert-file-contents *exchange-rates-file*)
+    (read (buffer-string))))
+
+;; FIXME I'll go back and try the following code:
+;;  - if unit exists in math-additional-units, update that entry
+;;  - otherwise, add unit
+
+;; FIXME This probably isn't the best way to handle this!
+(defun calc-undefine-unit-if-exists (unit)
+  (condition-case nil
+      (calc-undefine-unit unit)
+    (error nil)))
+
+;; FIXME And this probably isn't the best way to handle this!
 (defun calc-currency-load ()
   (progn
-    (check-exchange-rates)
+    (check-currency-unit-table)
+    (let ((currency-unit-table (read-currency-unit-table)))
+      ;; For each unit of currency, undefine it in math-additional-units
+      (loop for unit in currency-unit-table
+            do (calc-undefine-unit-if-exists (car unit)))
+
+      ;; Then, add math-standard-units to the units table
+      (setq math-additional-units (append math-additional-units (read-currency-unit-table))
+            math-units-table nil))))
+
+(provide 'calc-currency)
