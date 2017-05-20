@@ -2,7 +2,7 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 14:41:12 jws>
+;; Time-stamp: <2017-05-20 14:42:37 jws>
 
 ;;; Notes:
 
@@ -61,17 +61,6 @@
     (THB . "Thai baht")
     (ZAR . "South African rand")))
 
-(defun time-last-modified (file)
-  "Return the time `file` was last modified, as a time value (e.g. like `current-time`)"
-  (nth 5 (file-attributes file)))
-
-(defun file-age (file)
-  "Returns the number of days since `file` was last modified"
-  (/ (float-time (time-subtract
-                  (current-time)
-                  (time-last-modified file)))
-     (* 60 60 24)))
-
 (defun download-exchange-rates ()
   "Download the latest exchange rates, return the file they were downloaded to"
   (let ((file (concat "/tmp/exchange." (format-time-string "%Y%m%d") ".xml")))
@@ -121,6 +110,17 @@
    (pp (build-currency-unit-table))
    nil
    calc-currency-exchange-rates-file))
+
+(defun time-last-modified (file)
+  "Return the time `file` was last modified, as a time value (e.g. like `current-time`)"
+  (nth 5 (file-attributes file)))
+
+(defun file-age (file)
+  "Returns the number of days since `file` was last modified"
+  (/ (float-time (time-subtract
+                  (current-time)
+                  (time-last-modified file)))
+     (* 60 60 24)))
 
 (defun check-currency-unit-table ()
   "Check to see if the exchange rates table exists, or if it is up to date.
