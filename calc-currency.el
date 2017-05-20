@@ -2,12 +2,13 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 15:30:36 jws>
+;; Time-stamp: <2017-05-20 15:35:10 jws>
 
 ;;; Notes:
 
 (require 'cl)   ;; for the loop macro
 
+(require 'calc-currency-db)
 (require 'calc-currency-utils)
 (require 'calc-currency-ecb)
 
@@ -24,53 +25,18 @@
 ;; The currency to use as the base for the final table
 (defvar *base-currency* 'USD)
 
-;; Names of currencies
-(defvar *currency-names*
-  '((USD . "United States dollar")
-    (EUR . "European Union euro")
-    (JPY . "Japanese yen")
-    (BGN . "Bulgarian lev")
-    (CZK . "Czech koruna")
-    (DKK . "Danish kroner")
-    (GBP . "British pound")
-    (HUF . "Hungarian forint")
-    (PLN . "Polish zloty")
-    (RON . "Romanian new leu")
-    (SEK . "Swedish krona")
-    (CHF . "Swiss franc")
-    (NOK . "Norwegian kroner")
-    (HRK . "Croatian kuna")
-    (RUB . "Russian ruble")
-    (TRY . "Turkish new lira")
-    (AUD . "Australian dollar")
-    (BRL . "Brazilian real")
-    (CAD . "Canadian dollar")
-    (CNY . "Chinese yuan renminbi")
-    (HKD . "Hong Kong dollar")
-    (IDR . "Indonesian rupiah")
-    (ILS . "Israeli new shekel")
-    (INR . "Indian rupee")
-    (KRW . "South Korean won")
-    (MXN . "Mexican peso")
-    (MYR . "Malaysian ringgit")
-    (NZD . "New Zealand dollar")
-    (PHP . "Philippine peso")
-    (SGD . "Singaporean dollar")
-    (THB . "Thai baht")
-    (ZAR . "South African rand")))
-
 (defun build-currency-unit-table ()
   "Take the alist from `process-currency-rates` and transform it into a list structured like `math-additional-units`."
   (let* ((rate-table (calc-currency-ecb-process-rates))
          (base-rate (assqv *base-currency* rate-table))
-         (base-desc (assqv *base-currency* *currency-names*))
+         (base-desc (assqv *base-currency* *currency-db*))
          (rate-table-mod (assq-delete-all *base-currency* rate-table)))
     (cons (list *base-currency* nil base-desc)
           (loop for rate in rate-table
                 collect (list
                          (car rate)
                          (format "%S / %f" *base-currency* (/ (cdr rate) base-rate))
-                         (assqv (car rate) *currency-names*))))))
+                         (assqv (car rate) *currency-db*))))))
 
 ;; necessary for write-currency-unit-table to work properly
 (setq-local eval-expression-print-length nil)
