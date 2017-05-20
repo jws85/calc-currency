@@ -2,12 +2,14 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 14:43:04 jws>
+;; Time-stamp: <2017-05-20 15:30:36 jws>
 
 ;;; Notes:
 
-(require 'xml)  ;; to read XML files
 (require 'cl)   ;; for the loop macro
+
+(require 'calc-currency-utils)
+(require 'calc-currency-ecb)
 
 ;; Where to save the exchange rates to
 (defcustom calc-currency-exchange-rates-file
@@ -15,10 +17,6 @@
   "Where calc-currency saves the latest exchange rates to."
   :group 'calc-currency
   :type 'string)
-
-;; The XML file containing the exchange rates
-;; This one is provided by the European Union.
-(defvar *exchange-rates-url* "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
 
 ;; How often to check for exchange rates
 (defvar *exchange-rates-update-interval* 5)
@@ -61,37 +59,9 @@
     (THB . "Thai baht")
     (ZAR . "South African rand")))
 
-(defun download-exchange-rates ()
-  "Download the latest exchange rates, return the file they were downloaded to"
-  (let ((file (concat "/tmp/exchange." (format-time-string "%Y%m%d") ".xml")))
-    (url-copy-file *exchange-rates-url* file t)
-    file))
-
-(defun assqv (key alist)
-  "Finds `key` in `alist` and returns its `cdr`"
-  (cdr (assq key alist)))
-
-(defun process-currency (node)
-  "Used by `process-currency-rates` to turn an XML currency node to a single cons cell relation."
-  (let* ((attrs (xml-node-attributes node))
-         (code (read (assqv 'currency attrs)))
-         (rate (string-to-number (assqv 'rate attrs))))
-    (cons code rate)))
-
-(defun process-currency-rates ()
-  "Reads the exchange rate XML and transforms it into an alist that relates ISO codes to exchange rates."
-  (let* ((xml (xml-parse-file (download-exchange-rates)))
-         (grandpappy-cube (xml-get-children (car xml) 'Cube))
-         (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
-         (date (assq 'time (xml-node-attributes (car pappy-cube))))
-         (baby-cubes (xml-get-children (car pappy-cube) 'Cube)))
-    (cons (cons 'EUR 1)
-          (loop for cube in baby-cubes
-                collect (process-currency cube)))))
-
 (defun build-currency-unit-table ()
   "Take the alist from `process-currency-rates` and transform it into a list structured like `math-additional-units`."
-  (let* ((rate-table (process-currency-rates))
+  (let* ((rate-table (calc-currency-ecb-process-rates))
          (base-rate (assqv *base-currency* rate-table))
          (base-desc (assqv *base-currency* *currency-names*))
          (rate-table-mod (assq-delete-all *base-currency* rate-table)))
@@ -111,22 +81,11 @@
    nil
    calc-currency-exchange-rates-file))
 
-(defun time-last-modified (file)
-  "Return the time `file` was last modified, as a time value (e.g. like `current-time`)"
-  (nth 5 (file-attributes file)))
-
-(defun file-age (file)
-  "Returns the number of days since `file` was last modified"
-  (/ (float-time (time-subtract
-                  (current-time)
-                  (time-last-modified file)))
-     (* 60 60 24)))
-
 (defun check-currency-unit-table ()
   "Check to see if the exchange rates table exists, or if it is up to date.
 If it is not, fetch new data and write a new exchange rate table."
   (if (or (not (file-readable-p calc-currency-exchange-rates-file))
-          (> (file-age calc-currency-exchange-rates-file) *exchange-rates-update-interval*))
+          (> (calc-currency-utils-file-age calc-currency-exchange-rates-file) *exchange-rates-update-interval*))
       (progn
         (write-currency-unit-table)
         (message "Fetched new exchange rates!"))))
