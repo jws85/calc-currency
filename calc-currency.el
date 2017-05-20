@@ -2,19 +2,23 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 14:23:07 jws>
+;; Time-stamp: <2017-05-20 14:41:12 jws>
 
 ;;; Notes:
 
 (require 'xml)  ;; to read XML files
 (require 'cl)   ;; for the loop macro
 
+;; Where to save the exchange rates to
+(defcustom calc-currency-exchange-rates-file
+  (expand-file-name "calc-currency-rates.el" user-emacs-directory)
+  "Where calc-currency saves the latest exchange rates to."
+  :group 'calc-currency
+  :type 'string)
+
 ;; The XML file containing the exchange rates
 ;; This one is provided by the European Union.
 (defvar *exchange-rates-url* "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
-
-;; Where to copy the exchange rates to
-(defvar *exchange-rates-file* "/tmp/exchange.el")
 
 ;; How often to check for exchange rates
 (defvar *exchange-rates-update-interval* 5)
@@ -116,19 +120,19 @@
   (write-region
    (pp (build-currency-unit-table))
    nil
-   *exchange-rates-file*))
+   calc-currency-exchange-rates-file))
 
 (defun check-currency-unit-table ()
   "Check to see if the exchange rates table exists, or if it is up to date.
 If it is not, fetch new data and write a new exchange rate table."
-  (if (or (not (file-readable-p *exchange-rates-file*))
-          (> (file-age *exchange-rates-file*) *exchange-rates-update-interval*))
+  (if (or (not (file-readable-p calc-currency-exchange-rates-file))
+          (> (file-age calc-currency-exchange-rates-file) *exchange-rates-update-interval*))
       (write-currency-unit-table)))
 
 (defun read-currency-unit-table ()
   "Reads in the exchange rates table."
   (with-temp-buffer
-    (insert-file-contents *exchange-rates-file*)
+    (insert-file-contents calc-currency-exchange-rates-file)
     (read (buffer-string))))
 
 ;; FIXME I'll go back and try the following code:
