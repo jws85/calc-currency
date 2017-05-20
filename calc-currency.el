@@ -2,7 +2,7 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-18 22:25:37 jws>
+;; Time-stamp: <2017-05-20 14:23:07 jws>
 
 ;;; Notes:
 
@@ -79,12 +79,14 @@
   (cdr (assq key alist)))
 
 (defun process-currency (node)
+  "Used by `process-currency-rates` to turn an XML currency node to a single cons cell relation."
   (let* ((attrs (xml-node-attributes node))
          (code (read (assqv 'currency attrs)))
          (rate (string-to-number (assqv 'rate attrs))))
     (cons code rate)))
 
 (defun process-currency-rates ()
+  "Reads the exchange rate XML and transforms it into an alist that relates ISO codes to exchange rates."
   (let* ((xml (xml-parse-file (download-exchange-rates)))
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
@@ -95,6 +97,7 @@
                 collect (process-currency cube)))))
 
 (defun build-currency-unit-table ()
+  "Take the alist from `process-currency-rates` and transform it into a list structured like `math-additional-units`."
   (let* ((rate-table (process-currency-rates))
          (base-rate (assqv *base-currency* rate-table))
          (base-desc (assqv *base-currency* *currency-names*))
@@ -109,17 +112,21 @@
 ;; necessary for write-currency-unit-table to work properly
 (setq-local eval-expression-print-length nil)
 (defun write-currency-unit-table ()
+  "Writes the exchange rate table to a file."
   (write-region
    (pp (build-currency-unit-table))
    nil
    *exchange-rates-file*))
 
 (defun check-currency-unit-table ()
+  "Check to see if the exchange rates table exists, or if it is up to date.
+If it is not, fetch new data and write a new exchange rate table."
   (if (or (not (file-readable-p *exchange-rates-file*))
           (> (file-age *exchange-rates-file*) *exchange-rates-update-interval*))
       (write-currency-unit-table)))
 
 (defun read-currency-unit-table ()
+  "Reads in the exchange rates table."
   (with-temp-buffer
     (insert-file-contents *exchange-rates-file*)
     (read (buffer-string))))
@@ -130,6 +137,7 @@
 
 ;; FIXME This probably isn't the best way to handle this!
 (defun calc-undefine-unit-if-exists (unit)
+  "Deletes a unit from `math-additional-units` if it exists."
   (condition-case nil
       (calc-undefine-unit unit)
     (error nil)))
