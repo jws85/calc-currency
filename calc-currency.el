@@ -2,7 +2,7 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 14:42:37 jws>
+;; Time-stamp: <2017-05-20 14:43:04 jws>
 
 ;;; Notes:
 
@@ -127,7 +127,9 @@
 If it is not, fetch new data and write a new exchange rate table."
   (if (or (not (file-readable-p calc-currency-exchange-rates-file))
           (> (file-age calc-currency-exchange-rates-file) *exchange-rates-update-interval*))
-      (write-currency-unit-table)))
+      (progn
+        (write-currency-unit-table)
+        (message "Fetched new exchange rates!"))))
 
 (defun read-currency-unit-table ()
   "Reads in the exchange rates table."
