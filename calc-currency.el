@@ -2,7 +2,7 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 15:35:10 jws>
+;; Time-stamp: <2017-05-20 15:50:54 jws>
 
 ;;; Notes:
 
@@ -12,6 +12,10 @@
 (require 'calc-currency-utils)
 (require 'calc-currency-ecb)
 
+(defgroup calc-currency nil
+  "Automatically load and update exchange rates as units in Emacs Calc."
+  :group 'calc)
+
 ;; Where to save the exchange rates to
 (defcustom calc-currency-exchange-rates-file
   (expand-file-name "calc-currency-rates.el" user-emacs-directory)
@@ -20,22 +24,29 @@
   :type 'string)
 
 ;; How often to check for exchange rates
-(defvar *exchange-rates-update-interval* 5)
+(defcustom calc-currency-update-interval 5
+  "How often (integer number of days) to wait between updates of the exchange rate table."
+  :group 'calc-currency
+  :type 'integer)
 
 ;; The currency to use as the base for the final table
-(defvar *base-currency* 'USD)
+(defcustom calc-currency-base-currency 'USD
+  "Which currency to use as the base currency of the final table."
+  :group 'calc-currency
+  :type 'symbol)
 
 (defun build-currency-unit-table ()
   "Take the alist from `process-currency-rates` and transform it into a list structured like `math-additional-units`."
   (let* ((rate-table (calc-currency-ecb-process-rates))
-         (base-rate (assqv *base-currency* rate-table))
-         (base-desc (assqv *base-currency* *currency-db*))
-         (rate-table-mod (assq-delete-all *base-currency* rate-table)))
-    (cons (list *base-currency* nil base-desc)
+         (base-currency calc-currency-base-currency)
+         (base-rate (assqv base-currency rate-table))
+         (base-desc (assqv base-currency *currency-db*))
+         (rate-table-mod (assq-delete-all base-currency rate-table)))
+    (cons (list base-currency nil base-desc)
           (loop for rate in rate-table
                 collect (list
                          (car rate)
-                         (format "%S / %f" *base-currency* (/ (cdr rate) base-rate))
+                         (format "%S / %f" base-currency (/ (cdr rate) base-rate))
                          (assqv (car rate) *currency-db*))))))
 
 ;; necessary for write-currency-unit-table to work properly
@@ -51,7 +62,7 @@
   "Check to see if the exchange rates table exists, or if it is up to date.
 If it is not, fetch new data and write a new exchange rate table."
   (if (or (not (file-readable-p calc-currency-exchange-rates-file))
-          (> (calc-currency-utils-file-age calc-currency-exchange-rates-file) *exchange-rates-update-interval*))
+          (> (calc-currency-utils-file-age calc-currency-exchange-rates-file) calc-currency-update-interval))
       (progn
         (write-currency-unit-table)
         (message "Fetched new exchange rates!"))))
