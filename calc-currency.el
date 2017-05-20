@@ -2,13 +2,12 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 15:50:54 jws>
+;; Time-stamp: <2017-05-20 16:10:57 jws>
 
 ;;; Notes:
 
 (require 'cl)   ;; for the loop macro
 
-(require 'calc-currency-db)
 (require 'calc-currency-utils)
 (require 'calc-currency-ecb)
 
@@ -38,16 +37,17 @@
 (defun build-currency-unit-table ()
   "Take the alist from `process-currency-rates` and transform it into a list structured like `math-additional-units`."
   (let* ((rate-table (calc-currency-ecb-process-rates))
+         (currency-table (calc-currency-ecb-currency-table))
          (base-currency calc-currency-base-currency)
          (base-rate (assqv base-currency rate-table))
-         (base-desc (assqv base-currency *currency-db*))
+         (base-desc (assqv base-currency currency-table))
          (rate-table-mod (assq-delete-all base-currency rate-table)))
     (cons (list base-currency nil base-desc)
           (loop for rate in rate-table
                 collect (list
                          (car rate)
                          (format "%S / %f" base-currency (/ (cdr rate) base-rate))
-                         (assqv (car rate) *currency-db*))))))
+                         (assqv (car rate) currency-table))))))
 
 ;; necessary for write-currency-unit-table to work properly
 (setq-local eval-expression-print-length nil)
