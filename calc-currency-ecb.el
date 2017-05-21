@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-21 02:09:24 jws>
+;; Time-stamp: <2017-05-21 16:42:07 jws>
 
 ;; Notes:
 ;; This only updates daily -- so anyone looking for more latency is out of luck.
@@ -59,7 +59,7 @@
   "Download the latest exchange rates from the ECB.
 
 This function returns the filename of the downloaded XML file."
-  (calc-currency-utils-fetch-file *exchange-rates-url* "ecb" "xml"))
+  (calc-currency-utils-fetch-file *calc-currency-ecb-exchange-rates-url* "ecb" "xml"))
 
 (defun calc-currency-ecb-process-currency (node)
   "Helper function for `calc-currency-ecb-process-rates`.
