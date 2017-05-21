@@ -10,7 +10,7 @@ I'm planning on putting this on MELPA once it's sufficiently "solid."
 At the moment, something like this will have to suffice for now:
 
 ```elisp
-(load-file "/path/to/calc-currency/calc-currency.el")
+(add-to-list 'load-path "/path/to/calc-currency")
 (require 'calc-currency)
 (setq calc-start-hook #'calc-currency-load)
 ```
