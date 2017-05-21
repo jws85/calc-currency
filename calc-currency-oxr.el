@@ -1,7 +1,7 @@
 ;;; calc-currency-oxr.el --- Fetches currency rates from openexchangerates.org
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-20 23:35:34 jws>
+;; Time-stamp: <2017-05-20 23:57:09 jws>
 
 ;; Notes:
 ;; You will need to sign up and provide an App ID.
@@ -82,8 +82,13 @@ Note that GETting currencies.json does NOT count against your usage limit!"
   (let* ((file (calc-currency-oxr-download-rates))
          (json (with-temp-buffer
                  (insert-file-contents file)
-                 (json-read-from-string (buffer-string)))))
-    (assqv 'rates json)))
+                 (json-read-from-string (buffer-string))))
+         (raw-rates (assqv 'rates json)))
+    (loop for rate in raw-rates
+          collect (cons
+                   (read (replace-regexp-in-string "[^A-Za-z]" ""
+                                                   (prin1-to-string (car rate))))
+                   (cdr rate)))))
 
 (defun calc-currency-oxr-module ()
   "A function providing a consistent interface to the OXR backend functions."
