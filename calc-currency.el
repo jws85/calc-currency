@@ -3,7 +3,7 @@
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-21 17:41:54 jws>
+;; Time-stamp: <2017-05-21 18:00:24 jws>
 
 ;;; Code:
 
@@ -88,18 +88,12 @@ If it is not, fetch the latest data and write a new exchange rate table."
     (insert-file-contents calc-currency-exchange-rates-file)
     (read (buffer-string))))
 
-;; FIXME I'll go back and try the following code:
-;;  - if unit exists in math-additional-units, update that entry
-;;  - otherwise, add unit
-
-;; FIXME This probably isn't the best way to handle this!
 (defun calc-undefine-unit-if-exists (unit)
   "Delete a unit UNIT from 'math-additional-units', if it exists."
   (condition-case nil
       (calc-undefine-unit unit)
     (error nil)))
 
-;; FIXME And this probably isn't the best way to handle this!
 (defun calc-currency-load ()
   "Load exchange rates into Calc's units table.
 
@@ -107,16 +101,17 @@ This function will load exchange rates into Emacs Calc.  It does this
 by downloading exchange rate info from one of several services.  This
 function automatically downloads new exchange rates after a
 user-specified number of days."
-  (progn
-    (calc-currency-check-for-update)
-    (let ((currency-unit-table (calc-currency-read-file)))
-      ;; For each unit of currency, undefine it in math-additional-units
-      (loop for unit in currency-unit-table
-            do (calc-undefine-unit-if-exists (car unit)))
+  (let* ((old-units (calc-currency-read-file))
+         (new-units (progn
+                      (calc-currency-check-for-update)
+                      (calc-currency-read-file))))
+    ;; For each unit of currency in the old table, undefine it in math-additional-units
+    (loop for unit in old-units
+          do (calc-undefine-unit-if-exists (car unit)))
 
-      ;; Then, add math-standard-units to the units table
-      (setq math-additional-units (append math-additional-units currency-unit-table)
-            math-units-table nil))))
+    ;; Then, add math-standard-units to the units table
+    (setq math-additional-units (append math-additional-units new-units)
+          math-units-table nil)))
 
 (provide 'calc-currency)
 
