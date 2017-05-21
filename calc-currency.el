@@ -2,7 +2,7 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 21:23:48 jws>
+;; Time-stamp: <2017-05-20 22:24:31 jws>
 
 ;;; Notes:
 
@@ -10,6 +10,7 @@
 
 (require 'calc-currency-utils)
 (require 'calc-currency-ecb)
+(require 'calc-currency-oxr)
 
 (defgroup calc-currency nil
   "Automatically load and update exchange rates as units in Emacs Calc."
