@@ -34,7 +34,7 @@ this file is placed at `~/.emacs.d/calc-currency-rates.el`.
 
 Out of the box, calc-currency will download exchange rates from an
 [XML file provided by the European Common Bank relating about 30
-common units to the Euro](https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml).
+common currencies to the Euro](https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml).
 You may take a look at that XML file and see if those are
 sufficient for your needs.  If they aren't, you can use [Open
 Exchange Rates](https://openexchangerates.org/) as a backend
@@ -49,6 +49,7 @@ CAN pay if you need that level of granularity ^_~).
 Once you do that, add the following to your elisp above:
 
 ```elisp
+(require 'calc-currency-oxr)
 (setq calc-currency-backend #'calc-currency-oxr-module
       calc-currency-oxr-app-id "Put your App ID here")
 ```
