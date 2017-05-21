@@ -1,7 +1,7 @@
 ;;; calc-currency-ecb.el --- Fetches currency rates from the European Central Bank
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-20 22:54:42 jws>
+;; Time-stamp: <2017-05-20 23:32:34 jws>
 
 ;; Notes:
 ;; This only updates daily -- so anyone looking for more latency is out of luck.
@@ -75,6 +75,7 @@
                 collect (calc-currency-ecb-process-currency cube)))))
 
 (defun calc-currency-ecb-module ()
+  "A function providing a consistent interface to the ECB backend functions."
   '((currency-table . calc-currency-ecb-currency-table)
     (download-rates . calc-currency-ecb-download-rates)
     (process-rates . calc-currency-ecb-process-rates)))
