@@ -3,7 +3,7 @@
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-21 17:23:22 jws>
+;; Time-stamp: <2017-05-21 17:41:54 jws>
 
 ;;; Code:
 
@@ -40,7 +40,7 @@
   :group 'calc-currency
   :type 'function)
 
-(defun build-exchange-rate-list (rate-table currency-table)
+(defun calc-currency-build-list (rate-table currency-table)
   "Take RATE-TABLE and CURRENCY-TABLE, return list like `math-additional-units`.
 
 RATE-TABLE and CURRENCY-TABLE should both be alists, and the alist keys in
@@ -58,31 +58,31 @@ both should correspond to currency units."
 
 ;; necessary for write-currency-unit-table to work properly
 (setq-local eval-expression-print-length nil)
-(defun update-exchange-rate-file ()
-  "Writes the exchange rate table to a file."
+(defun calc-currency-update-file ()
+  "Writes the latest exchange rate table to a file."
   (condition-case err
       (let* ((module (funcall calc-currency-backend))
              (download-file (funcall (assqv 'download-rates module)))
              (rate-table (funcall (assqv 'process-rates module) download-file))
              (currency-table (funcall (assqv 'currency-table module))))
         (write-region
-         (pp (build-exchange-rate-list rate-table currency-table))
+         (pp (calc-currency-build-list rate-table currency-table))
          nil
          calc-currency-exchange-rates-file)
         (message "Fetched new exchange rates!"))
     (error
      (message (format "Error updating; using existing rates instead: [%s]" err)))))
 
-(defun check-exchange-rate-file ()
+(defun calc-currency-check-for-update ()
   "Check to see if the exchange rates table exists, or if it is up to date.
 
-If it is not, fetch new data and write a new exchange rate table."
+If it is not, fetch the latest data and write a new exchange rate table."
   (if (or (not (file-readable-p calc-currency-exchange-rates-file))
           (> (calc-currency-utils-file-age calc-currency-exchange-rates-file) calc-currency-update-interval))
       (progn
-        (update-exchange-rate-file))))
+        (calc-currency-update-file))))
 
-(defun read-currency-unit-table ()
+(defun calc-currency-read-file ()
   "Read in the exchange rates table."
   (with-temp-buffer
     (insert-file-contents calc-currency-exchange-rates-file)
@@ -108,14 +108,14 @@ by downloading exchange rate info from one of several services.  This
 function automatically downloads new exchange rates after a
 user-specified number of days."
   (progn
-    (check-exchange-rate-file)
-    (let ((currency-unit-table (read-currency-unit-table)))
+    (calc-currency-check-for-update)
+    (let ((currency-unit-table (calc-currency-read-file)))
       ;; For each unit of currency, undefine it in math-additional-units
       (loop for unit in currency-unit-table
             do (calc-undefine-unit-if-exists (car unit)))
 
       ;; Then, add math-standard-units to the units table
-      (setq math-additional-units (append math-additional-units (read-currency-unit-table))
+      (setq math-additional-units (append math-additional-units currency-unit-table)
             math-units-table nil))))
 
 (provide 'calc-currency)
