@@ -1,15 +1,18 @@
 ;;; calc-currency-oxr.el --- Fetches currency rates from openexchangerates.org
 
+;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-20 23:57:09 jws>
+;; Time-stamp: <2017-05-21 02:05:15 jws>
 
 ;; Notes:
 ;; You will need to sign up and provide an App ID.
 ;; Open Exchange Rates can be used for free so long as you only submit 1000
 ;; requests a month or less.  Beyond that, and you'll need to pay.
 
+;;; Code:
+
 (require 'json)  ;; to read JSON
-(require 'cl)    ;; for the loop macro
+(eval-when-compile (require 'cl))   ;; for the loop macro
 
 (require 'calc-currency-utils)
 
@@ -23,8 +26,9 @@ so long as you do less than 1000 requests a month."
 
 ;; Where to save the exchange rates to
 (defcustom calc-currency-oxr-app-id "APP_ID_HERE"
-  "Your App ID for Open Exchange Rates.  You must enter a value in
-order to use this backend."
+  "Your App ID for Open Exchange Rates.
+
+You must enter a value in order to use this backend."
   :group 'calc-currency-oxr
   :type 'string)
 
@@ -52,7 +56,10 @@ currency[1], so... use discretion if you're in Venezuela?
 (defvar *calc-currency-oxr-api-url* "https://openexchangerates.org/api/")
 
 (defun calc-currency-oxr-url (endpoint)
-  "Build the OXR endpoint URL."
+  "Build the OXR endpoint URL.
+
+ENDPOINT is a string representing the name of the endpoint e.g.
+\"latest\", \"currencies\"."
   (concat *calc-currency-oxr-api-url*
           endpoint
           ".json"
@@ -66,19 +73,21 @@ Note that GETting currencies.json does NOT count against your usage limit!"
                                   "oxr.currencies" "json"))
 
 (defun calc-currency-oxr-currency-table ()
-  "Returns the table of all currencies supported by the OXR endpoint."
+  "Return a table of all currencies supported by the OXR endpoint."
   (let ((file (calc-currency-oxr-download-currency-table)))
     (with-temp-buffer
       (insert-file-contents file)
       (json-read-from-string (buffer-string)))))
 
 (defun calc-currency-oxr-download-rates ()
-  "Download the latest exchange rates from OXR, and return the file they were downloaded to"
+  "Download the latest exchange rates from OXR.
+
+This function returns the filename of the downloaded JSON file."
   (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest")
                                   "oxr.rates" "json"))
 
 (defun calc-currency-oxr-process-rates ()
-  "Returns an alist representing the exchange rates from OXR."
+  "Return an alist representing the exchange rates from OXR."
   (let* ((file (calc-currency-oxr-download-rates))
          (json (with-temp-buffer
                  (insert-file-contents file)
@@ -91,9 +100,11 @@ Note that GETting currencies.json does NOT count against your usage limit!"
                    (cdr rate)))))
 
 (defun calc-currency-oxr-module ()
-  "A function providing a consistent interface to the OXR backend functions."
+  "Provide a consistent interface to the OXR backend functions."
   '((currency-table . calc-currency-oxr-currency-table)
     (download-rates . calc-currency-oxr-download-rates)
     (process-rates . calc-currency-oxr-process-rates)))
 
 (provide 'calc-currency-oxr)
+
+;;; calc-currency-oxr.el ends here

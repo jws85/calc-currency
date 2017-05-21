@@ -1,12 +1,13 @@
 ;;; calc-currency.el --- Fetches currency exchange rates for Calc
 
+;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-21 00:39:23 jws>
+;; Time-stamp: <2017-05-21 01:47:43 jws>
 
-;;; Notes:
+;;; Code:
 
-(require 'cl)   ;; for the loop macro
+(eval-when-compile (require 'cl))   ;; for the loop macro
 
 (require 'calc-currency-utils)
 (require 'calc-currency-ecb)
@@ -24,7 +25,7 @@
 
 ;; How often to check for exchange rates
 (defcustom calc-currency-update-interval 5
-  "How often (integer number of days) to wait between updates of the exchange rate table."
+  "How many days to wait between updates of the exchange rate table."
   :group 'calc-currency
   :type 'integer)
 
@@ -35,7 +36,7 @@
   :type 'symbol)
 
 (defcustom calc-currency-backend #'calc-currency-ecb-module
-  "What backend function to use; the name should end in -module"
+  "What backend function to use; the name should end in -module."
   :group 'calc-currency
   :type 'function)
 
@@ -74,7 +75,7 @@ If it is not, fetch new data and write a new exchange rate table."
         (message "Fetched new exchange rates!"))))
 
 (defun read-currency-unit-table ()
-  "Reads in the exchange rates table."
+  "Read in the exchange rates table."
   (with-temp-buffer
     (insert-file-contents calc-currency-exchange-rates-file)
     (read (buffer-string))))
@@ -85,13 +86,19 @@ If it is not, fetch new data and write a new exchange rate table."
 
 ;; FIXME This probably isn't the best way to handle this!
 (defun calc-undefine-unit-if-exists (unit)
-  "Deletes a unit from `math-additional-units` if it exists."
+  "Delete a unit from 'math-additional-units', if it exists."
   (condition-case nil
       (calc-undefine-unit unit)
     (error nil)))
 
 ;; FIXME And this probably isn't the best way to handle this!
 (defun calc-currency-load ()
+  "Load exchange rates into Calc's units table.
+
+This function will load exchange rates into Emacs Calc.  It does this
+by downloading exchange rate info from one of several services.  This
+function automatically downloads new exchange rates after a
+user-specified number of days."
   (progn
     (check-currency-unit-table)
     (let ((currency-unit-table (read-currency-unit-table)))
@@ -104,3 +111,5 @@ If it is not, fetch new data and write a new exchange rate table."
             math-units-table nil))))
 
 (provide 'calc-currency)
+
+;;; calc-currency.el ends here

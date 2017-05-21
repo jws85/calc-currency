@@ -1,14 +1,17 @@
 ;;; calc-currency-ecb.el --- Fetches currency rates from the European Central Bank
 
+;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-20 23:32:34 jws>
+;; Time-stamp: <2017-05-21 02:09:24 jws>
 
 ;; Notes:
 ;; This only updates daily -- so anyone looking for more latency is out of luck.
 ;; But it is free, free, free... just be considerate and don't update too often!
 
+;;; Code:
+
 (require 'xml)  ;; to read XML files
-(require 'cl)   ;; for the loop macro
+(eval-when-compile (require 'cl))   ;; for the loop macro
 
 (require 'calc-currency-utils)
 
@@ -18,7 +21,7 @@
   "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
 
 (defun calc-currency-ecb-currency-table ()
-  "Returns the table of all currencies supported by the ECB endpoint."
+  "Return a table of all currencies supported by the ECB endpoint."
   '((USD . "United States dollar")
     (EUR . "European Union euro")
     (JPY . "Japanese yen")
@@ -53,18 +56,24 @@
     (ZAR . "South African rand")))
 
 (defun calc-currency-ecb-download-rates ()
-  "Download the latest exchange rates, return the file they were downloaded to"
+  "Download the latest exchange rates from the ECB.
+
+This function returns the filename of the downloaded XML file."
   (calc-currency-utils-fetch-file *exchange-rates-url* "ecb" "xml"))
 
 (defun calc-currency-ecb-process-currency (node)
-  "Used by `process-currency-rates` to turn an XML currency node to a single cons cell relation."
+  "Helper function for `calc-currency-ecb-process-rates`.
+
+This takes a NODE, which should correspond to one of the currency
+<Cube> entries in the XML file, and returns a cons cell with that
+same information."
   (let* ((attrs (xml-node-attributes node))
          (code (read (assqv 'currency attrs)))
          (rate (string-to-number (assqv 'rate attrs))))
     (cons code rate)))
 
 (defun calc-currency-ecb-process-rates ()
-  "Reads the exchange rate XML and transforms it into an alist that relates ISO codes to exchange rates."
+  "Return an alist representing the exchange rates from the ECB."
   (let* ((xml (xml-parse-file (calc-currency-ecb-download-rates)))
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
@@ -75,9 +84,11 @@
                 collect (calc-currency-ecb-process-currency cube)))))
 
 (defun calc-currency-ecb-module ()
-  "A function providing a consistent interface to the ECB backend functions."
+  "Provide a consistent interface to the ECB backend functions."
   '((currency-table . calc-currency-ecb-currency-table)
     (download-rates . calc-currency-ecb-download-rates)
     (process-rates . calc-currency-ecb-process-rates)))
 
 (provide 'calc-currency-ecb)
+
+;;; calc-currency-ecb.el ends here
