@@ -1,7 +1,7 @@
 ;;; calc-currency-ecb.el --- Fetches currency rates from the European Central Bank
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-20 21:16:15 jws>
+;; Time-stamp: <2017-05-20 22:54:42 jws>
 
 ;; Notes:
 ;; This only updates daily -- so anyone looking for more latency is out of luck.
@@ -54,7 +54,7 @@
 
 (defun calc-currency-ecb-download-rates ()
   "Download the latest exchange rates, return the file they were downloaded to"
-  (calc-currency-utils-fetch-file *exchange-rates-url* "ecb"))
+  (calc-currency-utils-fetch-file *exchange-rates-url* "ecb" "xml"))
 
 (defun calc-currency-ecb-process-currency (node)
   "Used by `process-currency-rates` to turn an XML currency node to a single cons cell relation."

@@ -1,11 +1,11 @@
 ;;; calc-currency-utils.el --- Utility functions
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-20 15:26:04 jws>
+;; Time-stamp: <2017-05-20 22:54:29 jws>
 
-(defun calc-currency-utils-fetch-file (url file-infix)
+(defun calc-currency-utils-fetch-file (url file-infix file-suffix)
   "Fetch a file from `url`, download it into the tmp directory, and return its filename."
-  (let ((file (concat "/tmp/exchange." file-infix "." (format-time-string "%Y%m%d") ".xml")))
+  (let ((file (concat "/tmp/exchange." file-infix "." (format-time-string "%Y%m%d") "." file-suffix)))
     (url-copy-file url file t)
     file))
 
