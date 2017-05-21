@@ -18,6 +18,46 @@ At the moment, something like this will have to suffice for now:
 This will load `calc-currency` at startup, and then run the
 `calc-currency-load` function every time Calc is started up.
 
+## Basic Configuration
+
+All configuration can be done with Customize if you prefer: <kbd>M-x</kbd>
+customize-group <kbd>Return</kbd> calc-currency <kbd>Return</kbd>.
+
+`calc-currency-exchange-rates-file` allows you to change the
+default location for the exchange rate table file.  By default,
+this file is placed at `~/.emacs.d/calc-currency-rates.el`.
+
+`calc-currency-update-interval` is the number of days before
+`calc-currency` will fetch new rates.  This is 5 by default.
+
+## Using Open Exchange Rates
+
+Out of the box, calc-currency will download exchange rates from an
+[XML file provided by the European Common Bank relating about 30
+common units to the Euro](https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml).
+You may take a look at that XML file and see if those are
+sufficient for your needs.  If they aren't, you can use [Open
+Exchange Rates](https://openexchangerates.org/) as a backend
+instead.  This will get you about 180 currencies, and you can
+optionally fetch rates for several cryptocurrencies as well.
+
+In order to do this, you'll need to sign up and get an app ID.
+This will allow you 1000 updates a month for free; if you need
+it more often, you'll need to pay (and, honestly, you probably
+CAN pay if you need that level of granularity ^_~).
+
+Once you do that, add the following to your elisp above:
+
+```elisp
+(setq calc-currency-backend #'calc-currency-oxr-module
+      calc-currency-oxr-app-id "Put your App ID here")
+```
+
+Remember to not commit your app ID to a public repository.
+
+You may additionally fetch alternative rates and cryptocurrency
+rates by setting `calc-currency-show-alternative` to `t`.
+
 # Usage
 
 Usage should be like converting any other unit in Emacs Calc.
@@ -39,15 +79,13 @@ around as follows:
 
 # Disclaimer
 
-This code only supports about 30 currencies.  The exchange rates are
-fetched from an [XML file provided by the European Common Bank relating
-common units to the Euro](https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml).
-I'd like to support more currencies, but I'd like whatever source to not
-require signup, and would prefer to not have API limits, etc.
-
 Right now I only allow for
 [ISO currency codes](https://en.wikipedia.org/wiki/ISO_4217);
 on down the road, I'd like to support currency signs like $, €, ¥.
+
+In at least one place in this code, I use `/tmp` as a temporary
+scratch place, and thus has a reliance on a *nix based environment.
+That should be fixed at some point too.
 
 This code is alpha quality.  There be dragons here!
 
