@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-21 02:05:15 jws>
+;; Time-stamp: <2017-05-21 17:08:07 jws>
 
 ;; Notes:
 ;; You will need to sign up and provide an App ID.
@@ -86,11 +86,10 @@ This function returns the filename of the downloaded JSON file."
   (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest")
                                   "oxr.rates" "json"))
 
-(defun calc-currency-oxr-process-rates ()
+(defun calc-currency-oxr-process-rates (download-file)
   "Return an alist representing the exchange rates from OXR."
-  (let* ((file (calc-currency-oxr-download-rates))
-         (json (with-temp-buffer
-                 (insert-file-contents file)
+  (let* ((json (with-temp-buffer
+                 (insert-file-contents download-file)
                  (json-read-from-string (buffer-string))))
          (raw-rates (assqv 'rates json)))
     (loop for rate in raw-rates
