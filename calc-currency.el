@@ -2,7 +2,7 @@
 
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-20 16:10:57 jws>
+;; Time-stamp: <2017-05-20 21:23:48 jws>
 
 ;;; Notes:
 
@@ -34,10 +34,16 @@
   :group 'calc-currency
   :type 'symbol)
 
+(defcustom calc-currency-backend #'calc-currency-ecb-module
+  "What backend function to use; the name should end in -module"
+  :group 'calc-currency
+  :type 'function)
+
 (defun build-currency-unit-table ()
   "Take the alist from `process-currency-rates` and transform it into a list structured like `math-additional-units`."
-  (let* ((rate-table (calc-currency-ecb-process-rates))
-         (currency-table (calc-currency-ecb-currency-table))
+  (let* ((module (funcall calc-currency-backend))
+         (rate-table (funcall (assqv 'process-rates module)))
+         (currency-table (funcall (assqv 'currency-table module)))
          (base-currency calc-currency-base-currency)
          (base-rate (assqv base-currency rate-table))
          (base-desc (assqv base-currency currency-table))
