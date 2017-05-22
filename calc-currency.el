@@ -3,7 +3,7 @@
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-21 18:00:24 jws>
+;; Time-stamp: <2017-05-22 10:40:05 jws>
 
 ;;; Code:
 
@@ -101,7 +101,9 @@ This function will load exchange rates into Emacs Calc.  It does this
 by downloading exchange rate info from one of several services.  This
 function automatically downloads new exchange rates after a
 user-specified number of days."
-  (let* ((old-units (calc-currency-read-file))
+  (let* ((old-units (if (file-readable-p calc-currency-exchange-rates-file)
+                        (calc-currency-read-file)
+                      nil))
          (new-units (progn
                       (calc-currency-check-for-update)
                       (calc-currency-read-file))))
