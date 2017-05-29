@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-21 17:06:54 jws>
+;; Time-stamp: <2017-05-29 15:27:26 jws>
 
 ;; Notes:
 ;; This only updates daily -- so anyone looking for more latency is out of luck.
@@ -73,7 +73,7 @@ same information."
     (cons code rate)))
 
 (defun calc-currency-ecb-process-rates (download-file)
-  "Return an alist representing the exchange rates from the ECB."
+  "Return an alist representing the exchange rates from the ECB in DOWNLOAD-FILE."
   (let* ((xml (xml-parse-file download-file))
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))

@@ -3,11 +3,13 @@
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-22 10:40:05 jws>
+;; Time-stamp: <2017-05-29 18:59:16 jws>
 
 ;;; Code:
 
 (eval-when-compile (require 'cl))   ;; for the loop macro
+
+(require 'calc-units)
 
 (require 'calc-currency-utils)
 (require 'calc-currency-ecb)

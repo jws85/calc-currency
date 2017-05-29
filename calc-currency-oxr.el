@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-21 17:08:07 jws>
+;; Time-stamp: <2017-05-29 15:27:54 jws>
 
 ;; Notes:
 ;; You will need to sign up and provide an App ID.
@@ -87,7 +87,7 @@ This function returns the filename of the downloaded JSON file."
                                   "oxr.rates" "json"))
 
 (defun calc-currency-oxr-process-rates (download-file)
-  "Return an alist representing the exchange rates from OXR."
+  "Return an alist representing the exchange rates from OXR in DOWNLOAD-FILE."
   (let* ((json (with-temp-buffer
                  (insert-file-contents download-file)
                  (json-read-from-string (buffer-string))))
