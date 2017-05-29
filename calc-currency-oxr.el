@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-29 15:27:54 jws>
+;; Time-stamp: <2017-05-30 22:30:19 jws>
 
 ;; Notes:
 ;; You will need to sign up and provide an App ID.
@@ -98,11 +98,13 @@ This function returns the filename of the downloaded JSON file."
                                                    (prin1-to-string (car rate))))
                    (cdr rate)))))
 
-(defun calc-currency-oxr-module ()
-  "Provide a consistent interface to the OXR backend functions."
-  '((currency-table . calc-currency-oxr-currency-table)
-    (download-rates . calc-currency-oxr-download-rates)
-    (process-rates . calc-currency-oxr-process-rates)))
+(defun calc-currency-oxr-list (base-currency)
+  "Build a list of rates from OpenExchangeRates using BASE-CURRENCY."
+  (let ((rate-table (calc-currency-oxr-process-rates (calc-currency-oxr-download-rates))))
+    (calc-currency-utils-build-list
+     rate-table
+     (calc-currency-oxr-currency-table)
+     base-currency)))
 
 (provide 'calc-currency-oxr)
 

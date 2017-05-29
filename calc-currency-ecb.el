@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-29 15:27:26 jws>
+;; Time-stamp: <2017-05-30 22:29:56 jws>
 
 ;; Notes:
 ;; This only updates daily -- so anyone looking for more latency is out of luck.
@@ -83,11 +83,13 @@ same information."
           (loop for cube in baby-cubes
                 collect (calc-currency-ecb-process-currency cube)))))
 
-(defun calc-currency-ecb-module ()
-  "Provide a consistent interface to the ECB backend functions."
-  '((currency-table . calc-currency-ecb-currency-table)
-    (download-rates . calc-currency-ecb-download-rates)
-    (process-rates . calc-currency-ecb-process-rates)))
+(defun calc-currency-ecb-list (base-currency)
+  "Build a list of rates from the ECB using BASE-CURRENCY."
+  (let ((rate-table (calc-currency-ecb-process-rates (calc-currency-ecb-download-rates))))
+    (calc-currency-utils-build-list
+     rate-table
+     (calc-currency-ecb-currency-table)
+     base-currency)))
 
 (provide 'calc-currency-ecb)
 

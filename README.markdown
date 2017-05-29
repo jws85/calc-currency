@@ -50,7 +50,7 @@ Once you do that, add the following to your elisp above:
 
 ```elisp
 (require 'calc-currency-oxr)
-(setq calc-currency-backend #'calc-currency-oxr-module
+(setq calc-currency-backend-function #'calc-currency-oxr-list
       calc-currency-oxr-app-id "Put your App ID here")
 ```
 

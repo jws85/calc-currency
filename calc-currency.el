@@ -3,7 +3,7 @@
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-29 18:59:16 jws>
+;; Time-stamp: <2017-05-29 19:29:52 jws>
 
 ;;; Code:
 
@@ -37,41 +37,23 @@
   :group 'calc-currency
   :type 'symbol)
 
-(defcustom calc-currency-backend #'calc-currency-ecb-module
-  "What backend function to use; the name should end in -module."
+(defcustom calc-currency-backend-function #'calc-currency-ecb-list
+  "What backend function to use; the name should end in -list."
   :group 'calc-currency
   :type 'function)
-
-(defun calc-currency-build-list (rate-table currency-table)
-  "Take RATE-TABLE and CURRENCY-TABLE, return list like `math-additional-units`.
-
-RATE-TABLE and CURRENCY-TABLE should both be alists, and the alist keys in
-both should correspond to currency units."
-  (let* ((base-currency calc-currency-base-currency)
-         (base-rate (assqv base-currency rate-table))
-         (base-desc (assqv base-currency currency-table))
-         (rate-table-mod (assq-delete-all base-currency rate-table)))
-    (cons (list base-currency nil base-desc)
-          (loop for rate in rate-table
-                collect (list
-                         (car rate)
-                         (format "%S / %f" base-currency (/ (cdr rate) base-rate))
-                         (assqv (car rate) currency-table))))))
 
 ;; necessary for write-currency-unit-table to work properly
 (setq-local eval-expression-print-length nil)
 (defun calc-currency-update-file ()
   "Writes the latest exchange rate table to a file."
   (condition-case err
-      (let* ((module (funcall calc-currency-backend))
-             (download-file (funcall (assqv 'download-rates module)))
-             (rate-table (funcall (assqv 'process-rates module) download-file))
-             (currency-table (funcall (assqv 'currency-table module))))
+      (let ((rate-list (funcall calc-currency-backend-function calc-currency-base-currency)))
         (write-region
-         (pp (calc-currency-build-list rate-table currency-table))
+         (pp rate-list)
          nil
          calc-currency-exchange-rates-file)
-        (message "Fetched new exchange rates!"))
+        (message "Fetched new exchange rates!")
+        t)
     (error
      (message (format "Error updating; using existing rates instead: [%s]" err)))))
 

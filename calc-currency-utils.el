@@ -2,9 +2,11 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-21 01:53:36 jws>
+;; Time-stamp: <2017-05-29 19:12:28 jws>
 
 ;;; Code:
+
+(require 'cl-lib)
 
 (defun calc-currency-utils-fetch-file (url file-infix file-suffix)
   "Fetch a file from the Web and download it to a file.
@@ -33,6 +35,23 @@ The return value will be an Emacs time data structure, like `current-time`."
                   (current-time)
                   (calc-currency-utils-time-modified file)))
      (* 60 60 24)))
+
+(defun calc-currency-utils-build-list (rate-table currency-table base-currency)
+  "Build a list of currencies formatted like 'math-additional-units'.
+
+RATE-TABLE and CURRENCY-TABLE should both be alists, and the alist keys in
+both should correspond to currency units.  BASE-CURRENCY is the unit to be
+used as the base."
+  (let* ((base-rate (assqv base-currency rate-table))
+         (base-desc (assqv base-currency currency-table))
+         (rate-table-mod (assq-delete-all base-currency rate-table)))
+    (cons (list base-currency nil base-desc)
+          (cl-loop for rate in rate-table
+                   collect (list
+                            (car rate)
+                            (format "%S / %f" base-currency (/ (cdr rate) base-rate))
+                            (assqv (car rate) currency-table))))))
+
 
 (provide 'calc-currency-utils)
 
