@@ -2,7 +2,6 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-30 22:30:19 jws>
 
 ;; Notes:
 ;; You will need to sign up and provide an App ID.

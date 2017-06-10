@@ -2,7 +2,6 @@
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
-;; Time-stamp: <2017-05-29 19:12:28 jws>
 
 ;;; Code:
 

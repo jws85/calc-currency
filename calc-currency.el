@@ -3,7 +3,6 @@
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
-;; Time-stamp: <2017-05-29 19:29:52 jws>
 
 ;;; Code:
 
