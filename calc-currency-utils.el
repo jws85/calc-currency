@@ -6,6 +6,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'f)
 
 (defun calc-currency-utils-fetch-file (url file-infix file-suffix)
   "Fetch a file from the Web and download it to a file.
@@ -16,7 +17,7 @@ the string FILE-INFIX and will end in FILE-SUFFIX, which should be
 a file extension like \"json\"."
   (let ((file (concat "/tmp/exchange." file-infix "." (format-time-string "%Y%m%d") "." (format-time-string "%H%M%S") "." file-suffix)))
     (url-copy-file url file t)
-    file))
+    (f-read file)))
 
 (defun assqv (key alist)
   "Find KEY in ALIST and return its `cdr`."

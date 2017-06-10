@@ -65,6 +65,12 @@
 This function returns the filename of the downloaded XML file."
   (calc-currency-utils-fetch-file *calc-currency-ecb-exchange-rates-url* "ecb" "xml"))
 
+(defun my-xml-parse-string (string)
+  "Parse the XML in STRING."
+  (with-temp-buffer
+    (insert string)
+    (xml-parse-region)))
+
 (defun calc-currency-ecb-process-currency (node)
   "Helper function for `calc-currency-ecb-process-rates`.
 
@@ -76,9 +82,9 @@ same information."
          (rate (string-to-number (assqv 'rate attrs))))
     (cons code rate)))
 
-(defun calc-currency-ecb-process-rates (download-file)
-  "Return an alist representing the exchange rates from the ECB in DOWNLOAD-FILE."
-  (let* ((xml (xml-parse-file download-file))
+(defun calc-currency-ecb-process-rates (xml-string)
+  "Return an alist representing the exchange rates from the ECB in XML-STRING."
+  (let* ((xml (my-xml-parse-string xml-string))
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
          (baby-cubes (xml-get-children (car pappy-cube) 'Cube)))
@@ -120,9 +126,9 @@ ISO time formats like:
 2017-06-09 16:00:00 +0100"
   (float-time (9time-to-4time (parse-time-string time-string))))
 
-(defun calc-currency-ecb-get-timestamp (download-file)
-  "Return the timestamp of the ECB rates in DOWNLOAD-FILE."
-  (let* ((xml (xml-parse-file download-file))
+(defun calc-currency-ecb-get-timestamp (xml-string)
+  "Return the timestamp of the ECB rates in XML-STRING."
+  (let* ((xml (my-xml-parse-string xml-string))
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
          (date (assqv 'time (xml-node-attributes (car pappy-cube)))))
@@ -131,13 +137,13 @@ ISO time formats like:
 
 (defun calc-currency-ecb-list (base-currency)
   "Build a list of rates from the ECB using BASE-CURRENCY."
-  (let* ((download-file (calc-currency-ecb-download-rates))
-         (rate-table (calc-currency-ecb-process-rates download-file))
+  (let* ((xml-string (calc-currency-ecb-download-rates))
+         (rate-table (calc-currency-ecb-process-rates xml-string))
          (currency-table (calc-currency-ecb-currency-table))
          (rate-list (calc-currency-utils-build-list rate-table
                                                     currency-table
                                                     base-currency))
-         (timestamp (calc-currency-ecb-get-timestamp download-file)))
+         (timestamp (calc-currency-ecb-get-timestamp xml-string)))
     (list 'ecb timestamp rate-list)))
 
 (provide 'calc-currency-ecb)

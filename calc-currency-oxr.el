@@ -68,15 +68,9 @@ ENDPOINT is a string representing the name of the endpoint e.g.
 (defun calc-currency-oxr-download-currency-table ()
   "Download the OXR currency names, and return the file they were downloaded to.
 Note that GETting currencies.json does NOT count against your usage limit!"
-  (calc-currency-utils-fetch-file (calc-currency-oxr-url "currencies")
-                                  "oxr.currencies" "json"))
-
-(defun calc-currency-oxr-currency-table ()
-  "Return a table of all currencies supported by the OXR endpoint."
-  (let ((file (calc-currency-oxr-download-currency-table)))
-    (with-temp-buffer
-      (insert-file-contents file)
-      (json-read-from-string (buffer-string)))))
+  (json-read-from-string
+   (calc-currency-utils-fetch-file (calc-currency-oxr-url "currencies")
+                                   "oxr.currencies" "json")))
 
 (defun calc-currency-oxr-download-rates ()
   "Download the latest exchange rates from OXR.
@@ -85,11 +79,9 @@ This function returns the filename of the downloaded JSON file."
   (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest")
                                   "oxr.rates" "json"))
 
-(defun calc-currency-oxr-process-rates (filename)
-  "Return an alist representing the exchange rates from OXR in FILENAME."
-  (let* ((json (with-temp-buffer
-                 (insert-file-contents filename)
-                 (json-read-from-string (buffer-string))))
+(defun calc-currency-oxr-process-rates (json-string)
+  "Return an alist representing the exchange rates from OXR in JSON-STRING."
+  (let* ((json (json-read-from-string json-string))
          (raw-rates (assqv 'rates json)))
     (loop for rate in raw-rates
           collect (cons
@@ -97,22 +89,20 @@ This function returns the filename of the downloaded JSON file."
                                                    (prin1-to-string (car rate))))
                    (cdr rate)))))
 
-(defun calc-currency-oxr-get-timestamp (filename)
-  "Return the Unix timestamp of the exchange rate update from FILENAME."
-  (let ((json (with-temp-buffer
-                (insert-file-contents filename)
-                (json-read-from-string (buffer-string)))))
+(defun calc-currency-oxr-get-timestamp (json-string)
+  "Return the Unix timestamp of the exchange rate update from JSON-STRING."
+  (let ((json (json-read-from-string json-string)))
     (assqv 'timestamp json)))
 
 (defun calc-currency-oxr-list (base-currency)
   "Build a list of rates from OpenExchangeRates using BASE-CURRENCY."
-  (let* ((download-file (calc-currency-oxr-download-rates))
-         (rate-table (calc-currency-oxr-process-rates download-file))
-         (currency-table (calc-currency-oxr-currency-table))
+  (let* ((rate-data (calc-currency-oxr-download-rates))
+         (rate-table (calc-currency-oxr-process-rates rate-data))
+         (currency-table (calc-currency-oxr-download-currency-table))
          (rate-list (calc-currency-utils-build-list rate-table
                                                     currency-table
                                                     base-currency))
-         (timestamp (calc-currency-oxr-get-timestamp download-file)))
+         (timestamp (calc-currency-oxr-get-timestamp rate-data)))
     (list 'oxr timestamp rate-list)))
 
 (provide 'calc-currency-oxr)
