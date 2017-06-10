@@ -56,15 +56,6 @@
     (error
      (message (format "Error updating; using existing rates instead: [%s]" err)))))
 
-(defun calc-currency-check-for-update ()
-  "Check to see if the exchange rates table exists, or if it is up to date.
-
-If it is not, fetch the latest data and write a new exchange rate table."
-  (if (or (not (file-readable-p calc-currency-exchange-rates-file))
-          (> (calc-currency-utils-file-age calc-currency-exchange-rates-file) calc-currency-update-interval))
-      (progn
-        (calc-currency-update-file))))
-
 (defun calc-currency-read-file ()
   "Read in the exchange rates table."
   (with-temp-buffer
@@ -77,6 +68,16 @@ If it is not, fetch the latest data and write a new exchange rate table."
       (calc-undefine-unit unit)
     (error nil)))
 
+(defun calc-currency-undefine-units (units)
+  "Undefine the units defined in the unit table UNITS."
+  (loop for unit in units
+        do (calc-undefine-unit-if-exists (car unit))))
+
+(defun calc-currency-days-since-timestamp (timestamp)
+  "Return days since TIMESTAMP."
+  (/ (- (float-time) timestamp)
+     (* 60 60 24)))
+
 (defun calc-currency-load ()
   "Load exchange rates into Calc's units table.
 
@@ -84,18 +85,17 @@ This function will load exchange rates into Emacs Calc.  It does this
 by downloading exchange rate info from one of several services.  This
 function automatically downloads new exchange rates after a
 user-specified number of days."
-  (let* ((old-units (if (file-readable-p calc-currency-exchange-rates-file)
-                        (calc-currency-read-file)
-                      nil))
-         (new-units (progn
-                      (calc-currency-check-for-update)
-                      (calc-currency-read-file))))
-    ;; For each unit of currency in the old table, undefine it in math-additional-units
-    (loop for unit in old-units
-          do (calc-undefine-unit-if-exists (car unit)))
-
-    ;; Then, add math-standard-units to the units table
-    (setq math-additional-units (append math-additional-units new-units)
+  (progn
+    (if (file-readable-p calc-currency-exchange-rates-file)
+        (let* ((cached-file (calc-currency-read-file))
+               (cached-units (nth 2 cached-file))
+               (timestamp (nth 1 cached-file)))
+          (calc-currency-undefine-units cached-units)
+          ;; if file is old, download a new file
+          (if (> (calc-currency-days-since-timestamp timestamp) calc-currency-update-interval)
+              (calc-currency-update-file)))
+      (calc-currency-update-file))
+    (setq math-additional-units (append math-additional-units (nth 2 (calc-currency-read-file)))
           math-units-table nil)))
 
 (provide 'calc-currency)

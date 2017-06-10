@@ -85,10 +85,10 @@ This function returns the filename of the downloaded JSON file."
   (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest")
                                   "oxr.rates" "json"))
 
-(defun calc-currency-oxr-process-rates (download-file)
-  "Return an alist representing the exchange rates from OXR in DOWNLOAD-FILE."
+(defun calc-currency-oxr-process-rates (filename)
+  "Return an alist representing the exchange rates from OXR in FILENAME."
   (let* ((json (with-temp-buffer
-                 (insert-file-contents download-file)
+                 (insert-file-contents filename)
                  (json-read-from-string (buffer-string))))
          (raw-rates (assqv 'rates json)))
     (loop for rate in raw-rates
@@ -97,13 +97,23 @@ This function returns the filename of the downloaded JSON file."
                                                    (prin1-to-string (car rate))))
                    (cdr rate)))))
 
+(defun calc-currency-oxr-get-timestamp (filename)
+  "Return the Unix timestamp of the exchange rate update from FILENAME."
+  (let ((json (with-temp-buffer
+                (insert-file-contents filename)
+                (json-read-from-string (buffer-string)))))
+    (assqv 'timestamp json)))
+
 (defun calc-currency-oxr-list (base-currency)
   "Build a list of rates from OpenExchangeRates using BASE-CURRENCY."
-  (let ((rate-table (calc-currency-oxr-process-rates (calc-currency-oxr-download-rates))))
-    (calc-currency-utils-build-list
-     rate-table
-     (calc-currency-oxr-currency-table)
-     base-currency)))
+  (let* ((download-file (calc-currency-oxr-download-rates))
+         (rate-table (calc-currency-oxr-process-rates download-file))
+         (currency-table (calc-currency-oxr-currency-table))
+         (rate-list (calc-currency-utils-build-list rate-table
+                                                    currency-table
+                                                    base-currency))
+         (timestamp (calc-currency-oxr-get-timestamp download-file)))
+    (list 'oxr timestamp rate-list)))
 
 (provide 'calc-currency-oxr)
 

@@ -14,7 +14,7 @@ This function will HTTP GET a file from URL, and download it to a
 temporary file.  The temporary file will have a name that includes
 the string FILE-INFIX and will end in FILE-SUFFIX, which should be
 a file extension like \"json\"."
-  (let ((file (concat "/tmp/exchange." file-infix "." (format-time-string "%Y%m%d") "." file-suffix)))
+  (let ((file (concat "/tmp/exchange." file-infix "." (format-time-string "%Y%m%d") "." (format-time-string "%H%M%S") "." file-suffix)))
     (url-copy-file url file t)
     file))
 
@@ -50,7 +50,6 @@ used as the base."
                             (car rate)
                             (format "%S / %f" base-currency (/ (cdr rate) base-rate))
                             (assqv (car rate) currency-table))))))
-
 
 (provide 'calc-currency-utils)
 

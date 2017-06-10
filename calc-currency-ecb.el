@@ -19,6 +19,11 @@
 (defvar *calc-currency-ecb-exchange-rates-url*
   "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
 
+;; The ECB updates at 16:00 CET:
+;; https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
+(defvar *calc-currency-ecb-update-time*
+  "16:00:00 +0100")
+
 (defun calc-currency-ecb-currency-table ()
   "Return a table of all currencies supported by the ECB endpoint."
   '((USD . "United States dollar")
@@ -76,19 +81,64 @@ same information."
   (let* ((xml (xml-parse-file download-file))
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
-         (date (assq 'time (xml-node-attributes (car pappy-cube))))
          (baby-cubes (xml-get-children (car pappy-cube) 'Cube)))
     (cons (cons 'EUR 1)
           (loop for cube in baby-cubes
                 collect (calc-currency-ecb-process-currency cube)))))
 
+(defun 9time-to-4time (9time)
+  "Convert a 9TIME to a 4TIME.
+
+The 'parse-time-string' function in parse-time.el, and a few other
+functions, create 9-tuples (e.g. lists with nine things in them).
+This structure is documented here:
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Time-Conversion.html
+It's actually a pretty simple format.
+
+Other functions (notably 'float-time') expect a list that can have up to
+4 items in it (but in my experience only has two).  This structure is
+documented here, as the return value of 'current-time':
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Time-of-Day.html
+
+This function attempts to convert the 9-tuple format to the 2/3/4-tuple
+format, so that it can then be used with 'float-time' et al."
+  (let ((sec (nth 0 9time))
+        (min (nth 1 9time))
+        (hr  (nth 2 9time))
+        (day (nth 3 9time))
+        (mon (nth 4 9time))
+        (yr  (nth 5 9time))
+        (tz  (nth 8 9time)))
+    (encode-time sec min hr day mon yr tz)))
+
+(defun epoch-time-from-string (time-string)
+  "Take TIME-STRING, return Unix epoch time.
+
+TIME-STRING should be anything accepted by 'parse-time-string', including
+ISO time formats like:
+
+2017-06-09 16:00:00 +0100"
+  (float-time (9time-to-4time (parse-time-string time-string))))
+
+(defun calc-currency-ecb-get-timestamp (download-file)
+  "Return the timestamp of the ECB rates in DOWNLOAD-FILE."
+  (let* ((xml (xml-parse-file download-file))
+         (grandpappy-cube (xml-get-children (car xml) 'Cube))
+         (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
+         (date (assqv 'time (xml-node-attributes (car pappy-cube)))))
+    (message date)
+    (epoch-time-from-string (concat date " " *calc-currency-ecb-update-time*))))
+
 (defun calc-currency-ecb-list (base-currency)
   "Build a list of rates from the ECB using BASE-CURRENCY."
-  (let ((rate-table (calc-currency-ecb-process-rates (calc-currency-ecb-download-rates))))
-    (calc-currency-utils-build-list
-     rate-table
-     (calc-currency-ecb-currency-table)
-     base-currency)))
+  (let* ((download-file (calc-currency-ecb-download-rates))
+         (rate-table (calc-currency-ecb-process-rates download-file))
+         (currency-table (calc-currency-ecb-currency-table))
+         (rate-list (calc-currency-utils-build-list rate-table
+                                                    currency-table
+                                                    base-currency))
+         (timestamp (calc-currency-ecb-get-timestamp download-file)))
+    (list 'ecb timestamp rate-list)))
 
 (provide 'calc-currency-ecb)
 
