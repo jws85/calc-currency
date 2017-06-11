@@ -30,7 +30,7 @@ used as the base."
          (base-desc (assqv base-currency currency-table))
          (rate-table-mod (assq-delete-all base-currency rate-table)))
     (cons (list base-currency nil base-desc)
-          (cl-loop for rate in rate-table
+          (cl-loop for rate in rate-table-mod
                    collect (list
                             (car rate)
                             (format "%S / %f" base-currency (/ (cdr rate) base-rate))
