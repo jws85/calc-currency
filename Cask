@@ -8,6 +8,8 @@
        "calc-currency-oxr.el"
        "calc-currency-utils.el")
 
+(depends-on "f")
+
 (development
  (depends-on "flycheck-cask")
  (depends-on "ert-runner"))
