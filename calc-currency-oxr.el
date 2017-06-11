@@ -59,11 +59,13 @@ currency[1], so... use discretion if you're in Venezuela?
 
 ENDPOINT is a string representing the name of the endpoint e.g.
 \"latest\", \"currencies\"."
-  (concat *calc-currency-oxr-api-url*
-          endpoint
-          ".json"
-          "?app_id=" calc-currency-oxr-app-id
-          (if calc-currency-oxr-show-alternative "&show_alternative=1" "")))
+  (if (equal calc-currency-oxr-app-id "APP_ID_HERE")
+      (error "Please sign up for an OpenExchangeRates App ID!")
+    (concat *calc-currency-oxr-api-url*
+            endpoint
+            ".json"
+            "?app_id=" calc-currency-oxr-app-id
+            (if calc-currency-oxr-show-alternative "&show_alternative=1" ""))))
 
 (defun calc-currency-oxr-download-currency-table ()
   "Download the OXR currency names, and slurp the JSON into a list.
