@@ -23,19 +23,6 @@ a file extension like \"json\"."
   "Find KEY in ALIST and return its `cdr`."
   (cdr (assq key alist)))
 
-(defun calc-currency-utils-time-modified (file)
-  "Return the last modification time of FILE.
-
-The return value will be an Emacs time data structure, like `current-time`."
-  (nth 5 (file-attributes file)))
-
-(defun calc-currency-utils-file-age (file)
-  "Return the number of days since FILE was last modified."
-  (/ (float-time (time-subtract
-                  (current-time)
-                  (calc-currency-utils-time-modified file)))
-     (* 60 60 24)))
-
 (defun calc-currency-utils-build-list (rate-table currency-table base-currency)
   "Build a list of currencies formatted like 'math-additional-units'.
 
