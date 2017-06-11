@@ -66,39 +66,39 @@ ENDPOINT is a string representing the name of the endpoint e.g.
           (if calc-currency-oxr-show-alternative "&show_alternative=1" "")))
 
 (defun calc-currency-oxr-download-currency-table ()
-  "Download the OXR currency names, and return the file they were downloaded to.
+  "Download the OXR currency names, and slurp the JSON into a list.
+
 Note that GETting currencies.json does NOT count against your usage limit!"
   (json-read-from-string
    (calc-currency-utils-fetch-file (calc-currency-oxr-url "currencies"))))
 
 (defun calc-currency-oxr-download-rates ()
-  "Download the latest exchange rates from OXR.
+  "Download the latest exchange rates from OXR, and slurp the JSON into a list.
 
 This function returns the filename of the downloaded JSON file."
-  (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest")))
+  (json-read-from-string
+   (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest"))))
 
-(defun calc-currency-oxr-process-rates (json-string)
-  "Return an alist representing the exchange rates from OXR in JSON-STRING."
-  (let* ((json (json-read-from-string json-string))
-         (raw-rates (assqv 'rates json)))
+(defun calc-currency-oxr-process-rates (rate-data)
+  "Return an alist representing the exchange rates from OXR in RATE-DATA."
+  (let ((raw-rates (assqv 'rates rate-data)))
     (loop for rate in raw-rates
           collect (cons
                    (read (replace-regexp-in-string "[^A-Za-z]" ""
                                                    (prin1-to-string (car rate))))
                    (cdr rate)))))
 
-(defun calc-currency-oxr-get-timestamp (json-string)
-  "Return the Unix timestamp of the exchange rate update from JSON-STRING."
-  (let ((json (json-read-from-string json-string)))
-    (assqv 'timestamp json)))
+(defun calc-currency-oxr-get-timestamp (rate-data)
+  "Return the Unix timestamp of the exchange rate update from RATE-DATA."
+  (assqv 'timestamp rate-data))
 
 (defun calc-currency-oxr-list (base-currency)
   "Build a list of rates from OpenExchangeRates using BASE-CURRENCY."
-  (let* ((rate-data (calc-currency-oxr-download-rates))
-         (rate-table (calc-currency-oxr-process-rates rate-data))
-         (currency-table (calc-currency-oxr-download-currency-table))
-         (rate-list (calc-currency-utils-build-list rate-table
-                                                    currency-table
+  (let* ((rate-data-raw (calc-currency-oxr-download-rates))
+         (rate-data (calc-currency-oxr-process-rates rate-data-raw))
+         (currency-data (calc-currency-oxr-download-currency-table))
+         (rate-list (calc-currency-utils-build-list rate-data
+                                                    currency-data
                                                     base-currency))
          (timestamp (calc-currency-oxr-get-timestamp rate-data)))
     (list 'oxr timestamp rate-list)))
