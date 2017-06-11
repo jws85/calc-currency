@@ -88,7 +88,7 @@ same information."
          (grandpappy-cube (xml-get-children (car xml) 'Cube))
          (pappy-cube (xml-get-children (car grandpappy-cube) 'Cube))
          (baby-cubes (xml-get-children (car pappy-cube) 'Cube)))
-    (cons (cons 'EUR 1)
+    (cons (cons 'EUR 1.0)
           (loop for cube in baby-cubes
                 collect (calc-currency-ecb-process-currency cube)))))
 
