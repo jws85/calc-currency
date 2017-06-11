@@ -70,9 +70,26 @@ ISO time formats like:
 2017-06-09 16:00:00 +0100"
   (float-time (9time-to-4time (parse-time-string time-string))))
 
+(defun difference-in-days (timestamp1 &optional timestamp2)
+  "Return difference in days between TIMESTAMP1 and TIMESTAMP2.
+
+The timestamps are Unix epoch times; TIMESTAMP1 should always represent
+an earlier time (assuming computer clocks aren't set incorrectly).
+
+If TIMESTAMP2 is not specified, it will be the value of 'float-time'."
+  (let ((timestamp (if (equal timestamp2 nil) (float-time) timestamp2)))
+    (/ (- timestamp timestamp1)
+       (* 60 60 24))))
+
 (defun assqv (key alist)
   "Find KEY in ALIST and return its `cdr`."
   (cdr (assq key alist)))
+
+(defun calc-undefine-unit-if-exists (unit)
+  "Delete a unit UNIT from 'math-additional-units', if it exists."
+  (condition-case nil
+      (calc-undefine-unit unit)
+    (error nil)))
 
 (provide 'calc-currency-utils)
 

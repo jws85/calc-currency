@@ -62,21 +62,10 @@
     (insert-file-contents calc-currency-exchange-rates-file)
     (read (buffer-string))))
 
-(defun calc-undefine-unit-if-exists (unit)
-  "Delete a unit UNIT from 'math-additional-units', if it exists."
-  (condition-case nil
-      (calc-undefine-unit unit)
-    (error nil)))
-
 (defun calc-currency-undefine-units (units)
   "Undefine the units defined in the unit table UNITS."
   (loop for unit in units
         do (calc-undefine-unit-if-exists (car unit))))
-
-(defun calc-currency-days-since-timestamp (timestamp)
-  "Return days since TIMESTAMP."
-  (/ (- (float-time) timestamp)
-     (* 60 60 24)))
 
 (defun calc-currency-load ()
   "Load exchange rates into Calc's units table.
@@ -92,7 +81,7 @@ user-specified number of days."
                (timestamp (nth 1 cached-file)))
           (calc-currency-undefine-units cached-units)
           ;; if file is old, download a new file
-          (if (> (calc-currency-days-since-timestamp timestamp) calc-currency-update-interval)
+          (if (> (difference-in-days timestamp) calc-currency-update-interval)
               (calc-currency-update-file)))
       (calc-currency-update-file))
     (setq math-additional-units (append math-additional-units (nth 2 (calc-currency-read-file)))
