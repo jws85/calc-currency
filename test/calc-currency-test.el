@@ -79,6 +79,18 @@
 
 ;;; calc-currency-utils
 
+;; calc-currency-utils-build-list
+(ert-deftest calc-currency-utils-build-list-test ()
+  (let ((rate-table '((USD . 1) (CAD . 1.2) (GBP . 0.8) (JPY . 100) (KRW . 1000)))
+        (currency-table '((USD . "US dollar") (CAD . "Canadian dollar") (GBP . "UK pound")
+                          (JPY . "Japanese yen") (KRW . "South Korean won"))))
+    (should (equal (calc-currency-utils-build-list rate-table currency-table 'USD)
+                   '((USD nil "US dollar")
+                     (CAD "USD / 1.200000" "Canadian dollar")
+                     (GBP "USD / 0.800000" "UK pound")
+                     (JPY "USD / 100.000000" "Japanese yen")
+                     (KRW "USD / 1000.000000" "South Korean won"))))))
+
 ;; 9time-to-4time
 (ert-deftest 9time-to-4time-test-1 ()
   (should (equal (9time-to-4time '(0 0 0 1 1 1970 nil nil 0))
