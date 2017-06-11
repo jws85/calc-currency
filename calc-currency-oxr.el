@@ -69,15 +69,13 @@ ENDPOINT is a string representing the name of the endpoint e.g.
   "Download the OXR currency names, and return the file they were downloaded to.
 Note that GETting currencies.json does NOT count against your usage limit!"
   (json-read-from-string
-   (calc-currency-utils-fetch-file (calc-currency-oxr-url "currencies")
-                                   "oxr.currencies" "json")))
+   (calc-currency-utils-fetch-file (calc-currency-oxr-url "currencies"))))
 
 (defun calc-currency-oxr-download-rates ()
   "Download the latest exchange rates from OXR.
 
 This function returns the filename of the downloaded JSON file."
-  (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest")
-                                  "oxr.rates" "json"))
+  (calc-currency-utils-fetch-file (calc-currency-oxr-url "latest")))
 
 (defun calc-currency-oxr-process-rates (json-string)
   "Return an alist representing the exchange rates from OXR in JSON-STRING."

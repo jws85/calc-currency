@@ -8,14 +8,15 @@
 (require 'cl-lib)
 (require 'f)
 
-(defun calc-currency-utils-fetch-file (url file-infix file-suffix)
-  "Fetch a file from the Web and download it to a file.
+(defun calc-currency-utils-fetch-file (url)
+  "GET a file from the Web and return its contents as a string.
 
 This function will HTTP GET a file from URL, and download it to a
-temporary file.  The temporary file will have a name that includes
-the string FILE-INFIX and will end in FILE-SUFFIX, which should be
-a file extension like \"json\"."
-  (let ((file (concat "/tmp/exchange." file-infix "." (format-time-string "%Y%m%d") "." (format-time-string "%H%M%S") "." file-suffix)))
+temporary file; by default in /tmp."
+  ; FIXME Windows support will require putting temp files elsewhere
+  (let ((file (format "/tmp/exchange.%s.%06d.tmp"
+                      (format-time-string "%Y%m%d.%H%M%S")
+                      (random 999999))))
     (url-copy-file url file t)
     (f-read file)))
 

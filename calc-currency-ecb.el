@@ -63,7 +63,7 @@
   "Download the latest exchange rates from the ECB.
 
 This function returns the filename of the downloaded XML file."
-  (calc-currency-utils-fetch-file *calc-currency-ecb-exchange-rates-url* "ecb" "xml"))
+  (calc-currency-utils-fetch-file *calc-currency-ecb-exchange-rates-url*))
 
 (defun my-xml-parse-string (string)
   "Parse the XML in STRING."
