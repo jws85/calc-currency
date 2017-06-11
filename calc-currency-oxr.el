@@ -100,7 +100,7 @@ This function returns the filename of the downloaded JSON file."
          (rate-list (calc-currency-utils-build-list rate-data
                                                     currency-data
                                                     base-currency))
-         (timestamp (calc-currency-oxr-get-timestamp rate-data)))
+         (timestamp (calc-currency-oxr-get-timestamp rate-data-raw)))
     (list 'oxr timestamp rate-list)))
 
 (provide 'calc-currency-oxr)
