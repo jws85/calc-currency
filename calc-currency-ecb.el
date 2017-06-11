@@ -92,40 +92,6 @@ same information."
           (loop for cube in baby-cubes
                 collect (calc-currency-ecb-process-currency cube)))))
 
-(defun 9time-to-4time (9time)
-  "Convert a 9TIME to a 4TIME.
-
-The 'parse-time-string' function in parse-time.el, and a few other
-functions, create 9-tuples (e.g. lists with nine things in them).
-This structure is documented here:
-https://www.gnu.org/software/emacs/manual/html_node/elisp/Time-Conversion.html
-It's actually a pretty simple format.
-
-Other functions (notably 'float-time') expect a list that can have up to
-4 items in it (but in my experience only has two).  This structure is
-documented here, as the return value of 'current-time':
-https://www.gnu.org/software/emacs/manual/html_node/elisp/Time-of-Day.html
-
-This function attempts to convert the 9-tuple format to the 2/3/4-tuple
-format, so that it can then be used with 'float-time' et al."
-  (let ((sec (nth 0 9time))
-        (min (nth 1 9time))
-        (hr  (nth 2 9time))
-        (day (nth 3 9time))
-        (mon (nth 4 9time))
-        (yr  (nth 5 9time))
-        (tz  (nth 8 9time)))
-    (encode-time sec min hr day mon yr tz)))
-
-(defun epoch-time-from-string (time-string)
-  "Take TIME-STRING, return Unix epoch time.
-
-TIME-STRING should be anything accepted by 'parse-time-string', including
-ISO time formats like:
-
-2017-06-09 16:00:00 +0100"
-  (float-time (9time-to-4time (parse-time-string time-string))))
-
 (defun calc-currency-ecb-get-timestamp (xml-string)
   "Return the timestamp of the ECB rates in XML-STRING."
   (let* ((xml (my-xml-parse-string xml-string))
