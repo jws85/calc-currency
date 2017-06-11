@@ -77,19 +77,40 @@
     (THB "USD / 34.115123" "Thai baht")
     (ZAR "USD / 12.947533" "South African rand")))
 
-(ert-deftest calc-currency-read-file-test-1 ()
-  (cl-letf (((symbol-function 'file-readable-p) (lambda (file) t))
-            ((symbol-function 'insert-file-contents) (lambda (file) *conversion-file*)))
-    (should (equal (calc-currency-read-file) *conversion-table*))))
-
-  (cl-letf (((symbol-function 'file-readable-p) (lambda (file) t))
-            ((symbol-function 'insert-file-contents) (lambda (file) *conversion-file*)))
-    (calc-currency-read-file))
-
 ;;; calc-currency-utils
 
-;; assqv
+;; 9time-to-4time
+(ert-deftest 9time-to-4time-test-1 ()
+  (should (equal (9time-to-4time '(0 0 0 1 1 1970 nil nil 0))
+                 '(0 0))))
 
+(ert-deftest 9time-to-4time-test-2 ()
+  (should (equal (9time-to-4time '(45 30 12 5 6 2017 nil nil -14400))
+                 (seconds-to-time 1496680245))))
+
+;; epoch-time-from-string
+(ert-deftest epoch-time-from-string-test-1 ()
+  (should (equal (epoch-time-from-string "1970-01-01 00:00:00 +0000")
+                 0.0)))
+
+(ert-deftest epoch-time-from-string-test-2 ()
+  (should (equal (epoch-time-from-string "2017-06-05 12:30:45 -0400")
+                 1496680245.0)))
+
+;; difference-in-days
+(ert-deftest difference-in-days-test-1 ()
+  (should (equal (difference-in-days 1496593845 1496680245) 1)))
+
+(ert-deftest difference-in-days-test-2 ()
+  (should (equal (difference-in-days 1465144245 1496680245) 365)))
+
+(ert-deftest difference-in-days-test-3 ()
+  (should (equal (difference-in-days 946684800 978307200) 366)))
+
+(ert-deftest difference-in-days-test-4 ()
+  (should (equal (difference-in-days 946684800 946728000) 0)))
+
+;; assqv
 (ert-deftest assqv-test-1 ()
   (should (equal (assqv 'baz '((foo . 42) (bar. 69) (baz . 1337) (quux . 9001)))
                  1337)))
@@ -101,11 +122,5 @@
 (ert-deftest assqv-test-3 ()
   (should (equal (assqv 'foo '())
                  nil)))
-
-;;; calc-currency-utils-file-age
-;(ert-deftest calc-currency-utils-file-age-1 ()
-;  (cl-flet ((calc-currency-utils-time-modified (file)
-;             (time-subtract (current-time) (days-to-time 5))))
-;    (should (= (calc-currency-utils-file-age "doesntmatter") 5))))
 
 ;;; calc-currency-test.el ends here
