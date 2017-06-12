@@ -88,11 +88,6 @@ In at least one place in this code, I use `/tmp` as a temporary
 scratch place, and thus has a reliance on a *nix based environment.
 That should be fixed at some point too.
 
-This code is alpha quality.  There be dragons here!
-
-I have used Emacs for awhile, and my Elisp is OK enough to configure
-it, but actual straight-up programming in it is pretty new to me.  As
-such, this code is probably completely non-idiomatic in a number of
-ways.  Please let me know if there's anything that can be improved.
+# Licensing
 
 This software is licensed under the GNU GPL v3.
