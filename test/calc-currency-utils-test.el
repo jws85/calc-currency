@@ -1,13 +1,10 @@
-;;; calc-currency-test.el --- Test of stuff
+;;; calc-currency-utils-test.el --- Test of stuff
 
 ;;; Commentary:
 
 ;;; Code:
 
-(require 'calc-currency)
 (require 'calc-currency-utils)
-
-(require 'cl-lib)
 
 ;;; calc-currency-utils
 
@@ -78,4 +75,6 @@
   (should (equal (assqv 'foo '())
                  nil)))
 
-;;; calc-currency-test.el ends here
+(provide 'calc-currency-utils-test)
+
+;;; calc-currency-utils-test.el ends here
