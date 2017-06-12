@@ -1,4 +1,4 @@
-;;; calc-currency-utils-test.el --- Test of stuff
+;;; calc-currency-utils-test.el --- Test of utility functions
 
 ;;; Commentary:
 
