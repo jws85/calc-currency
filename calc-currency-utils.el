@@ -14,7 +14,10 @@
 This function will HTTP GET a file from URL, and download it to a
 temporary file; by default in /tmp."
   ; FIXME Windows support will require putting temp files elsewhere
-  (let ((file (format "/tmp/exchange.%s.%06d.tmp"
+  (let ((file (format "%s/exchange.%s.%06d.tmp"
+                      (if (or (equal system-type 'windows-nt) (equal system-type 'ms-dos))
+                          (getenv "TEMP")
+                        "/tmp")
                       (format-time-string "%Y%m%d.%H%M%S")
                       (random 999999))))
     (url-copy-file url file t)
