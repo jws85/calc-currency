@@ -12,7 +12,7 @@ At the moment, something like this will have to suffice for now:
 ```elisp
 (add-to-list 'load-path "/path/to/calc-currency")
 (require 'calc-currency)
-(setq calc-start-hook #'calc-currency-load)
+(add-hook 'calc-start-hook #'calc-currency-load)
 ```
 
 This will load `calc-currency` at startup, and then run the
