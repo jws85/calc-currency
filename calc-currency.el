@@ -1,4 +1,4 @@
-;;; calc-currency.el --- Fetches currency exchange rates for Calc
+;;; calc-currency.el --- Fetches currency exchange rates for Calc -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>

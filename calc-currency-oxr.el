@@ -1,4 +1,4 @@
-;;; calc-currency-oxr.el --- Fetches currency rates from openexchangerates.org
+;;; calc-currency-oxr.el --- Fetches currency rates from openexchangerates.org -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>

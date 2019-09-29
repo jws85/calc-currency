@@ -1,4 +1,4 @@
-;;; calc-currency-utils.el --- Utility functions
+;;; calc-currency-utils.el --- Utility functions -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>

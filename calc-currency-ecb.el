@@ -1,4 +1,4 @@
-;;; calc-currency-ecb.el --- Fetches currency rates from the European Central Bank
+;;; calc-currency-ecb.el --- Fetches currency rates from the European Central Bank -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
