@@ -1,4 +1,8 @@
 ;;; calc-currency-utils.el --- Utility functions -*- lexical-binding: t; -*-
+;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
+;; Keywords: calc, currency, exchange
+;; Homepage: https://github.com/jws85/calc-currency
+;; Package-Requires: (cl-lib f)
 
 ;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>

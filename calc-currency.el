@@ -1,8 +1,10 @@
 ;;; calc-currency.el --- Fetches currency exchange rates for Calc -*- lexical-binding: t; -*-
-
-;;; Commentary:
 ;; Author: J. W. Smith <jwsmith2spam at gmail dot com>
 ;; Keywords: calc, currency, exchange
+;; Homepage: https://github.com/jws85/calc-currency
+;; Package-Requires: (cl-lib f)
+
+;;; Commentary:
 
 ;;; Code:
 
